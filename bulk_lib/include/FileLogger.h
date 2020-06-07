@@ -7,6 +7,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <array>
+#include <random>
 #include "IObserver.h"
 #include "CmdList.h"
 
@@ -32,7 +33,7 @@ struct FileLogger : public IObserver<CmdList>, public IObserver<timepoint>
         m_condition.notify_one();
 	}
 	virtual void Update(timepoint time) override {
-		filename = "bulk" + std::to_string(time.time_since_epoch().count()) + ".log";
+		filenames.push("bulk" + std::to_string(time.time_since_epoch().count()) + std::to_string(rd()) + ".log");
 	}
 private:
     void Run(){
@@ -61,6 +62,8 @@ private:
         m_tasks.pop();
         cmd_counter += param.size();
         ++block_counter;
+        std::string filename = filenames.front();
+        filenames.pop();
         std::ofstream file(filename);
         if (file.is_open())
         {
@@ -69,7 +72,8 @@ private:
         }
     }
 private:
-	std::string filename;
+    std::random_device rd;
+	std::queue<std::string> filenames;
     std::condition_variable m_condition;
     std::array<std::thread,2> m_thread_pool;
     std::mutex m_mutex;
