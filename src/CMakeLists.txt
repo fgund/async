@@ -13,7 +13,7 @@ PROPERTIES
     CXX_STANDARD_REQUIRED ON
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    async
+    libasync
 )
 
 if (MSVC)
